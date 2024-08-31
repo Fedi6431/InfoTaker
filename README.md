@@ -7,6 +7,7 @@
    You can do it with the git command: `git clone https://github.com/Fedi6431/InfoTaker.git`
    
    or just by downloading the zip file.
+![image](https://github.com/user-attachments/assets/4151c84b-87ef-46ab-9408-52e8201ea305)
 
 2) Download requirements:
    Open the terminal in the repository folder and type: `pip install -r requirements.txt`
