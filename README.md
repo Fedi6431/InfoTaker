@@ -1,6 +1,4 @@
 # InfoTaker
-## ⚠ EDUCATIONAL PURPOSE ONLY ⚠
-
 ## Installation guide
 
 1) Download the repository:
